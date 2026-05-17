@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function AppNavigator({ theme }: AppNavigatorProps) {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={Routes.Home}>
+      <Stack.Navigator initialRouteName={Routes.Home} screenOptions={{ headerShown: false }}>
         <Stack.Screen name={Routes.Home}>
           {props => <HomeScreen {...props} theme={theme} />}
         </Stack.Screen>
