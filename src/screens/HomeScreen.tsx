@@ -1,0 +1,38 @@
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppColors } from '../theme/colors';
+import { StyleSheet, Text, View, Button } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/routes';
+import { Routes } from '../navigation/routes';
+
+type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'> & {
+    theme: AppColors;
+};
+
+function HomeScreen({ theme , navigation }: HomeScreenProps) {
+    const safeAreaInsets = useSafeAreaInsets();
+
+    return (
+        <View style={[styles.container, { backgroundColor: theme.background, paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom }]}>
+            <Text style={[styles.title, { color: theme.text }]}>Home Screen</Text>
+
+            <Button 
+                title= "Go to Pokemon Detail"    
+                onPress={() => navigation.navigate(Routes.PokemonDetail, { pokemonId: 1 })}
+            />
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+});
+
+export default HomeScreen;
