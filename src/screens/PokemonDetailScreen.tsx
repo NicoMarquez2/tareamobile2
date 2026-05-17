@@ -3,6 +3,9 @@ import { AppColors } from '../theme/colors';
 import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routes';
+import { useEffect, useState } from 'react';
+import { getPokemonById } from '../api/pokemonApi';
+import { PokemonDetail } from '../types/pokemon';
 
 type PokemonDetailProps = NativeStackScreenProps<RootStackParamList, 'PokemonDetail'> & {
     theme: AppColors;
@@ -12,11 +15,26 @@ function PokemonDetailScreen({ theme, route}: PokemonDetailProps) {
     const safeAreaInsets = useSafeAreaInsets();
     const { pokemonId } = route.params;
 
+    const [pokemon, setPokemon] = useState<PokemonDetail | null>(null);
+    const [error, setError] = useState<string>("");
+
+    useEffect(() => {
+    getPokemonById(pokemonId)
+        .then(setPokemon)
+        .catch(() => setError('No se pudo cargar el detalle'));
+    }, [pokemonId]);
+
     return (
         <SafeAreaProvider>
             <View style={[styles.container, { backgroundColor: theme.background, paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom }]}>
                 <Text style={[styles.title, { color: theme.text }]}>Pokemon Detail</Text>
                 <Text style={[ { color: theme.text }]}>{pokemonId}</Text>
+                {error && <Text>{error}</Text>}
+                {pokemon && (
+                    <View>
+                        <Text style={[ { color: theme.text }]}>{pokemon.name}</Text>
+                    </View>
+                )}
             </View>
         </SafeAreaProvider>
     );
