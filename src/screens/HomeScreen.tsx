@@ -32,6 +32,7 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
             {error && <Text >{error}</Text>}
             {loading && <Text>Cargando Pokémon...</Text>}
             <FlatList
+                showsVerticalScrollIndicator={false}
                 data={pokemons}
                 numColumns={2}
                 keyExtractor={pokemon => pokemon.id.toString()}
