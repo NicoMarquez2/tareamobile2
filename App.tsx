@@ -5,13 +5,9 @@
  * @format
  */
 
-import { StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-import { darkColors, lightColors, type AppColors } from './src/theme/colors';
-import HomeScreen from './src/screens/HomeScreen';
+import { StatusBar, useColorScheme } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { darkColors, lightColors } from './src/theme/colors';
 import AppNavigator from './src/navigation/AppNavigator';
 
 function App() {
@@ -29,37 +25,5 @@ function App() {
     </SafeAreaProvider>
   );
 }
-
-type AppContentProps = {
-  theme: AppColors;
-};
-
-function AppContent({ theme }: AppContentProps) {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.background, paddingTop: safeAreaInsets.top },
-      ]}
-    >
-      <Text style={[styles.title, { color: theme.text }]}>Pokedex</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-  },
-});
 
 export default App;

@@ -2,6 +2,9 @@ export type PokemonListItem = {
   id: number;
   name: string;
   url: string;
+  image: string | null;
+  types: string[];
+  primaryType: string;
 };
 
 export type PokemonListResponse = {

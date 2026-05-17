@@ -6,11 +6,6 @@ import type {
 
 const BASE_URL = 'https://pokeapi.co/api/v2';
 
-function getPokemonIdFromUrl(url: string): number {
-  const parts = url.split('/').filter(Boolean);
-  return Number(parts[parts.length - 1]);
-}
-
 async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`);
 
@@ -29,11 +24,25 @@ export async function getPokemonList(
     `/pokemon?limit=${limit}&offset=${offset}`,
   );
 
-  return data.results.map(pokemon => ({
-    id: getPokemonIdFromUrl(pokemon.url),
-    name: pokemon.name,
-    url: pokemon.url,
-  }));
+  const pokemonDetails = await Promise.all(
+    data.results.map(async (pokemon) => {
+      const detail = await fetch(pokemon.url).then((res) => res.json());
+
+      const types = detail.types.map((item: any) => item.type.name);
+      const image = detail.sprites?.other?.['official-artwork']?.front_default ?? detail.sprites?.front_default ?? null;
+
+      return {
+        id: detail.id,
+        name: detail.name,
+        url: pokemon.url,
+        image,
+        types,
+        primaryType: types[0] ?? 'normal',
+      };
+    })
+  );
+
+  return pokemonDetails;
 }
 
 export async function getPokemonById(id: number): Promise<PokemonDetail> {
