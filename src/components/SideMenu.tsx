@@ -1,18 +1,10 @@
 import { useRef, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  Animated,
-  Dimensions,
-  Image,
-  Modal,
-  Pressable,
-  StyleProp,
-  StyleSheet,
-  Text,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Animated, Dimensions, Image, Modal, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AppColors } from '../theme/colors';
+import { Routes, type RootStackParamList } from '../navigation/routes';
 
 const menuIcon = require('../assets/menu.png');
 const screenWidth = Dimensions.get('window').width;
@@ -30,6 +22,8 @@ function SideMenu({
   iconColor,
 }: SideMenuProps) {
   const safeAreaInsets = useSafeAreaInsets();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const menuTranslateX = useRef(new Animated.Value(sideMenuWidth)).current;
@@ -51,6 +45,18 @@ function SideMenu({
       duration: 200,
       useNativeDriver: true,
     }).start(() => setMenuVisible(false));
+  }
+
+  function goToAbout() {
+    setMenuOpen(false);
+    Animated.timing(menuTranslateX, {
+      toValue: sideMenuWidth,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setMenuVisible(false);
+      navigation.navigate(Routes.About);
+    });
   }
 
   return (
@@ -111,7 +117,7 @@ function SideMenu({
               </Text>
             </Pressable>
 
-            <Pressable style={styles.menuItem} onPress={closeMenu}>
+            <Pressable style={styles.menuItem} onPress={goToAbout}>
               <Text style={[styles.menuItemText, { color: theme.text }]}>
                 Acerca de
               </Text>
@@ -139,7 +145,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuBackdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: '#00000099',
   },
   sideMenu: {

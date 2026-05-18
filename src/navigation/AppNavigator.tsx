@@ -5,6 +5,7 @@ import HomeScreen from '../screens/HomeScreen';
 import PokemonDetailScreen from '../screens/PokemonDetailScreen';
 import { Routes, type RootStackParamList } from './routes';
 import type { AppColors } from '../theme/colors';
+import AboutScreen from '../screens/AboutScreen';
 
 type AppNavigatorProps = {
   theme: AppColors;
@@ -22,6 +23,10 @@ function AppNavigator({ theme }: AppNavigatorProps) {
 
         <Stack.Screen name={Routes.PokemonDetail}>
           {props => <PokemonDetailScreen {...props} theme={theme} />}
+        </Stack.Screen>
+
+        <Stack.Screen name={Routes.About}>
+          {props => <AboutScreen {...props} theme={theme} />}
         </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

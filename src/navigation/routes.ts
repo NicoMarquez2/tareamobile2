@@ -2,6 +2,7 @@ export const Routes = {
   Home: 'Home',
   PokemonDetail: 'PokemonDetail',
   Favorites: 'Favorites',
+  About: 'About',
 } as const;
 
 export type RootStackParamList = {
@@ -13,4 +14,5 @@ export type RootStackParamList = {
     types: string[];
   };
   Favorites: undefined;
+  About: undefined;
 };
