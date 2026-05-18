@@ -1,6 +1,6 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '../theme/colors';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/routes';
 import { Routes } from '../navigation/routes';
@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { PokemonListItem } from '../types/pokemon';
 import { getPokemonList } from '../api/pokemonApi';
 import PokemonCard from '../components/PokemonCard';
+import SideMenu from '../components/SideMenu';
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'> & {
     theme: AppColors;
@@ -26,20 +27,29 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
         .catch(() => setError('No se pudieron cargar los Pokémon'))
         .finally(() => setLoading(false));
     }, []);
+
     return (
-        <View style={[styles.container, { backgroundColor: theme.background, paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom }]}>
-            <Text style={[styles.title, { color: theme.text }]}>Home Screen</Text>
-            {error && <Text >{error}</Text>}
+        <View style={[styles.container, { backgroundColor: theme.background, paddingTop: safeAreaInsets.top + 12, paddingBottom: safeAreaInsets.bottom }]}>
+            <View style={styles.header}>
+                <Text style={[styles.title, { color: theme.text }]}>Home Screen</Text>
+                <SideMenu
+                    theme={theme}
+                    buttonStyle={styles.menuButton}
+                />
+            </View>
+
+            {error && <Text style={{ color: theme.text }}>{error}</Text>}
             {loading && <Text>Cargando Pokémon...</Text>}
+
             <FlatList
                 showsVerticalScrollIndicator={false}
                 data={pokemons}
                 numColumns={2}
                 keyExtractor={pokemon => pokemon.id.toString()}
                 contentContainerStyle={{ paddingBottom: safeAreaInsets.bottom }}
-                columnWrapperStyle={{ justifyContent: 'space-between', gap: 12 }}
+                columnWrapperStyle={styles.listRow}
                 renderItem={({ item }) => (
-                    <View style={{ flex: 1 }}>
+                    <View style={styles.listItem}>
                         <PokemonCard
                             theme={theme}
                             pokemonId={item.id}
@@ -60,7 +70,6 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
                 )}
             />
 
-
         </View>
     );
 }
@@ -70,11 +79,29 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
+  header: {
+    width: '100%',
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    zIndex: 10,
+  },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 16,
+  },
+  menuButton: {
+    position: 'absolute',
+    right: 0,
+  },
+  listRow: {
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  listItem: {
+    flex: 1,
   },
 });
 

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { getPokemonById } from '../api/pokemonApi';
 import { PokemonDetail } from '../types/pokemon';
 import { getPokemonTypeColor } from '../utils/pokemonTypesColors';
+import SideMenu from '../components/SideMenu';
 
 const MAX_STAT_VALUE = 150;
 
@@ -38,6 +39,11 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
             <TouchableOpacity style={[styles.backButton, {top: safeAreaInsets.top + 8}]} onPress={() => navigation.goBack()}>
                 <Image source={backIcon} style={styles.backIcon} />
             </TouchableOpacity>
+            <SideMenu
+                theme={theme}
+                buttonStyle={[styles.menuButton, { top: safeAreaInsets.top + 8 }]}
+                iconColor="#ffffff"
+            />
             <Text style={styles.title}>{pokemonName}</Text>
             <Text style={styles.id}>{pokemonId}</Text>
             {image && <Image source={{ uri: image }} style={styles.image} />}
@@ -265,6 +271,13 @@ const styles = StyleSheet.create({
         height: 24,
         tintColor: '#ffffff',
         resizeMode: 'contain',
+    },
+    menuButton: {
+        position: 'absolute',
+        right: 16,
+        zIndex: 2,
+        backgroundColor: '#00000030',
+        borderRadius: 20,
     },
 });
 
