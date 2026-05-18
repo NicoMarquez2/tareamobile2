@@ -1,6 +1,6 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '../theme/colors';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routes';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,7 @@ type PokemonDetailProps = NativeStackScreenProps<RootStackParamList, 'PokemonDet
     theme: AppColors;
 };
 
-function PokemonDetailScreen({ theme, route}: PokemonDetailProps) {
+function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
     const safeAreaInsets = useSafeAreaInsets();
     const { pokemonId, pokemonName, image, types } = route.params;
 
@@ -31,9 +31,13 @@ function PokemonDetailScreen({ theme, route}: PokemonDetailProps) {
     const color = getPokemonTypeColor(primaryType);
     const visibleTypes = pokemon?.types ?? types;
     const visibleAbilities = pokemon?.abilities ?? [];
+    const backIcon = require('../assets/atras.png');
 
     return (
         <View style={[styles.container, { backgroundColor: color, paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom }]}>
+            <TouchableOpacity style={[styles.backButton, {top: safeAreaInsets.top + 8}]} onPress={() => navigation.goBack()}>
+                <Image source={backIcon} style={styles.backIcon} />
+            </TouchableOpacity>
             <Text style={styles.title}>{pokemonName}</Text>
             <Text style={styles.id}>{pokemonId}</Text>
             {image && <Image source={{ uri: image }} style={styles.image} />}
@@ -243,6 +247,24 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '700',
         textAlign: 'right',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 16,
+        left: 16,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        backgroundColor: '#00000030',
+        zIndex: 1,
+    },
+    backIcon: {
+        top: 8,
+        width: 24,
+        height: 24,
+        tintColor: '#ffffff',
+        resizeMode: 'contain',
     },
 });
 
