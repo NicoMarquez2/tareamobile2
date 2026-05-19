@@ -60,8 +60,7 @@ screens/
 HomeScreen.tsx
 PokemonDetailScreen.tsx
 FavoritesScreen.tsx
-services/
-types/
+AboutScreen.tsx
 utils/
 
 android/
@@ -82,6 +81,7 @@ java/...
 - No implementar cambios enormes de una vez.
 - Cada tarea debe dejar la app compilable.
 - Antes de terminar una tarea, explicar qué archivos se modificaron y cómo probarlo.
+- No realizar cambios en el código si no es pedido
 
 ## SQLite
 
@@ -92,9 +92,6 @@ Tabla sugerida:
 favorite_pokemon:
 
 - id INTEGER PRIMARY KEY
-- name TEXT NOT NULL
-- image TEXT
-- types TEXT
 - created_at TEXT
 
 La lógica de base de datos debe estar en `src/database/`.
@@ -109,7 +106,7 @@ Rutas mínimas:
 - PokemonDetail
 - Favorites
 
-El detalle debe recibir como parámetro el `id` o `name` del Pokémon.
+El detalle debe recibir como parámetro el `id` del Pokémon.
 
 ## API
 
@@ -118,7 +115,7 @@ Usar PokeAPI.
 Endpoints sugeridos:
 
 - Listado: https://pokeapi.co/api/v2/pokemon
-- Detalle: https://pokeapi.co/api/v2/pokemon/{id-or-name}
+- Detalle: https://pokeapi.co/api/v2/pokemon/{id}
 
 Crear funciones reutilizables en `src/api/pokemonApi.ts`.
 
@@ -130,13 +127,6 @@ Implementar o preparar evidencia de:
 
 Usar `MainActivity` como Activity principal que inicializa React Native.
 
-### Service
-
-Crear un servicio Android simple para sincronización o precarga de favoritos/datos.
-
-Ejemplo justificable:
-
-- `PokemonSyncService`: servicio que registra en logs una sincronización o prepara datos locales.
 
 ### Broadcast Receiver
 
@@ -145,14 +135,6 @@ Crear un receptor para detectar cambios de conectividad o evento del sistema.
 Ejemplo justificable:
 
 - `ConnectivityReceiver`: detecta recuperación de conexión y dispara una acción simple.
-
-### Content Provider
-
-Crear un Content Provider para exponer favoritos locales.
-
-Ejemplo justificable:
-
-- `FavoritePokemonProvider`: permite consultar favoritos guardados.
 
 ### Intents
 
@@ -165,7 +147,7 @@ Ejemplo:
 ## Estilo de código
 
 - Usar nombres claros.
-- Evitar lógica compleja dentro del JSX.
+- Evitar lógica compleja dentro del TSX.
 - Usar tipos TypeScript para respuestas importantes.
 - Manejar estados de carga, error y vacío.
 - Evitar código duplicado.
