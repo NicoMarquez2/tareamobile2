@@ -8,6 +8,7 @@ import { getPokemonById } from '../api/pokemonApi';
 import { PokemonDetail } from '../types/pokemon';
 import { getPokemonTypeColor } from '../utils/pokemonTypesColors';
 import SideMenu from '../components/SideMenu';
+import { addFavourite, isFavourite, removeFavourite } from '../database/favouritesRepository';
 
 const MAX_STAT_VALUE = 150;
 
@@ -21,11 +22,16 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
 
     const [pokemon, setPokemon] = useState<PokemonDetail | null>(null);
     const [error, setError] = useState<string>("");
+    const [favourite, setFavourite] = useState(false);
 
     useEffect(() => {
     getPokemonById(pokemonId)
         .then(setPokemon)
         .catch(() => setError('No se pudo cargar el detalle'));
+    }, [pokemonId]);
+
+    useEffect(() => {
+        isFavourite(pokemonId).then(setFavourite);
     }, [pokemonId]);
 
     const primaryType = pokemon?.types[0] ?? types[0];
@@ -34,8 +40,15 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
     const visibleAbilities = pokemon?.abilities ?? [];
     const backIcon = require('../assets/atras.png');
 
-    function addFavourite() {
-        
+    async function handleFavouritePress() {
+        if(favourite) {
+            await removeFavourite(pokemonId);
+            setFavourite(false);
+            return;
+        } else {
+            await addFavourite(pokemonId);
+            setFavourite(true);
+        }
     }
 
     return (
@@ -139,8 +152,10 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
                 )}
             </View>
 
-            <Pressable style={styles.favouriteButton} onPress={() => {}}>
-                <Text style={styles.favouriteButtonText}>Añadir a favoritos</Text>
+            <Pressable style={styles.favouriteButton} onPress={handleFavouritePress}>
+                <Text style={styles.favouriteButtonText}>
+                    {favourite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                </Text>
             </Pressable>
         </View>
     );

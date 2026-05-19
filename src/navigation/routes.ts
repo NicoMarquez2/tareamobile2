@@ -1,7 +1,7 @@
 export const Routes = {
   Home: 'Home',
   PokemonDetail: 'PokemonDetail',
-  Favorites: 'Favorites',
+  Favourites: 'Favourites',
   About: 'About',
 } as const;
 
@@ -13,6 +13,6 @@ export type RootStackParamList = {
     image: string | null;
     types: string[];
   };
-  Favorites: undefined;
+  Favourites: undefined;
   About: undefined;
 };

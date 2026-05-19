@@ -59,6 +59,18 @@ function SideMenu({
     });
   }
 
+    function goToFavourites() {
+      setMenuOpen(false);
+      Animated.timing(menuTranslateX, {
+        toValue: sideMenuWidth,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        setMenuVisible(false);
+        navigation.navigate(Routes.Favourites);
+      });
+  }
+  
   return (
     <>
       <Pressable
@@ -111,7 +123,7 @@ function SideMenu({
               </Pressable>
             </View>
 
-            <Pressable style={styles.menuItem} onPress={closeMenu}>
+            <Pressable style={styles.menuItem} onPress={goToFavourites}>
               <Text style={[styles.menuItemText, { color: theme.text }]}>
                 Favoritos
               </Text>
