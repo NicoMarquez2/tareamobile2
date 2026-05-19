@@ -1,6 +1,6 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '../theme/colors';
-import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, Pressable } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routes';
 import { useEffect, useState } from 'react';
@@ -33,6 +33,10 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
     const visibleTypes = pokemon?.types ?? types;
     const visibleAbilities = pokemon?.abilities ?? [];
     const backIcon = require('../assets/atras.png');
+
+    function addFavourite() {
+        
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: color, paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom }]}>
@@ -134,6 +138,10 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
                     </ScrollView>
                 )}
             </View>
+
+            <Pressable style={styles.favouriteButton} onPress={() => {}}>
+                <Text style={styles.favouriteButtonText}>Añadir a favoritos</Text>
+            </Pressable>
         </View>
     );
 }
@@ -278,6 +286,18 @@ const styles = StyleSheet.create({
         zIndex: 2,
         backgroundColor: '#00000030',
         borderRadius: 20,
+    },
+    favouriteButton: {
+        marginTop: 36,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 999,
+        backgroundColor: '#00000030',
+    },
+    favouriteButtonText: {
+        color: '#ffffff',
+        fontSize: 14,
+        fontWeight: '600',
     },
 });
 
