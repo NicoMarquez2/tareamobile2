@@ -22,8 +22,7 @@ function SideMenu({
   iconColor,
 }: SideMenuProps) {
   const safeAreaInsets = useSafeAreaInsets();
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =  useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const menuTranslateX = useRef(new Animated.Value(sideMenuWidth)).current;
@@ -59,16 +58,28 @@ function SideMenu({
     });
   }
 
-    function goToFavourites() {
-      setMenuOpen(false);
-      Animated.timing(menuTranslateX, {
-        toValue: sideMenuWidth,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        setMenuVisible(false);
-        navigation.navigate(Routes.Favourites);
-      });
+  function goToFavourites() {
+    setMenuOpen(false);
+    Animated.timing(menuTranslateX, {
+      toValue: sideMenuWidth,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setMenuVisible(false);
+      navigation.navigate(Routes.Favourites);
+    });
+  }
+
+  function goToHome() {
+    setMenuOpen(false);
+    Animated.timing(menuTranslateX, {
+      toValue: sideMenuWidth,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setMenuVisible(false);
+      navigation.navigate(Routes.Home);
+    });
   }
   
   return (
@@ -122,6 +133,12 @@ function SideMenu({
                 />
               </Pressable>
             </View>
+
+            <Pressable style={styles.menuItem} onPress={goToHome}>
+              <Text style={[styles.menuItemText, { color: theme.text }]}>
+                Inicio
+              </Text>
+            </Pressable>
 
             <Pressable style={styles.menuItem} onPress={goToFavourites}>
               <Text style={[styles.menuItemText, { color: theme.text }]}>
