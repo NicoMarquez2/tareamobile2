@@ -15,3 +15,5 @@ gem 'logger'
 gem 'benchmark'
 gem 'mutex_m'
 gem 'nkf'
+
+gem "fastlane", "~> 2.234"
