@@ -16,9 +16,9 @@
 default_platform(:android)
 
 platform :android do
-  desc "Compila APK debug"
-  lane :debug do
-    gradle(task: "assembleDebug")
+  desc "Compila APK release"
+  lane :release do
+    gradle(task: "assembleRelease")
   end
 
   desc "Limpia Android"
