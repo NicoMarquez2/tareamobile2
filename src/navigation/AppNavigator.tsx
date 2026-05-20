@@ -14,9 +14,26 @@ type AppNavigatorProps = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const linking = {
+  prefixes: ['tareamobile2://'],
+  config: {
+    screens: {
+      [Routes.Home]: '',
+      [Routes.PokemonDetail]: {
+        path: 'pokemon/:pokemonId',
+        parse: {
+          pokemonId: Number,
+        },
+      },
+      [Routes.Favourites]: 'favourites',
+      [Routes.About]: 'about',
+    },
+  },
+};
+
 function AppNavigator({ theme }: AppNavigatorProps) {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator initialRouteName={Routes.Home} screenOptions={{ headerShown: false }}>
         <Stack.Screen name={Routes.Home}>
           {props => <HomeScreen {...props} theme={theme} />}

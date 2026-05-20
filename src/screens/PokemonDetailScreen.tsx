@@ -1,6 +1,6 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '../theme/colors';
-import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, Pressable } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, Pressable, Share } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routes';
 import { useEffect, useState } from 'react';
@@ -34,11 +34,14 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
         isFavourite(pokemonId).then(setFavourite);
     }, [pokemonId]);
 
-    const primaryType = pokemon?.types[0] ?? types[0];
+    const visibleName = pokemon?.name ?? pokemonName ?? `Pokemon #${pokemonId}`;
+    const visibleImage = pokemon?.image ?? image;
+    const visibleTypes = pokemon?.types ?? types ?? ['normal'];
+    const primaryType = visibleTypes[0] ?? 'normal';
     const color = getPokemonTypeColor(primaryType);
-    const visibleTypes = pokemon?.types ?? types;
     const visibleAbilities = pokemon?.abilities ?? [];
     const backIcon = require('../assets/atras.png');
+    const pokemonLink = `https://nicomarquez2.github.io/tareamobile2/?pokemon=${pokemonId}`;
 
     async function handleFavouritePress() {
         if(favourite) {
@@ -51,6 +54,16 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
         }
     }
 
+    async function handleSharePokemon() {
+        await Share.share({
+            title: `Pokemon ${visibleName}`,
+            message:
+            `Mira este pokemon\n\n` +
+            `${visibleName} #${pokemonId}\n` +
+            `${pokemonLink}`,
+        });
+    }
+
     return (
         <View style={[styles.container, { backgroundColor: color, paddingTop: safeAreaInsets.top, paddingBottom: safeAreaInsets.bottom }]}>
             <TouchableOpacity style={[styles.backButton, {top: safeAreaInsets.top + 8}]} onPress={() => navigation.goBack()}>
@@ -61,9 +74,9 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
                 buttonStyle={[styles.menuButton, { top: safeAreaInsets.top + 8 }]}
                 iconColor="#ffffff"
             />
-            <Text style={styles.title}>{pokemonName}</Text>
+            <Text style={styles.title}>{visibleName}</Text>
             <Text style={styles.id}>{pokemonId}</Text>
-            {image && <Image source={{ uri: image }} style={styles.image} />}
+            {visibleImage && <Image source={{ uri: visibleImage }} style={styles.image} />}
             <View style={[styles.detailContainer, { backgroundColor: theme.card }]}>
                 <View style={styles.summaryRow}>
                     <View style={styles.summaryColumn}>
@@ -156,6 +169,10 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
                 <Text style={styles.favouriteButtonText}>
                     {favourite ? 'Quitar de favoritos' : 'Añadir a favoritos'}
                 </Text>
+            </Pressable>
+
+            <Pressable style={styles.shareButton} onPress={handleSharePokemon}>
+                <Text style={styles.shareButtonText}>Compartir</Text>
             </Pressable>
         </View>
     );
@@ -310,6 +327,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#00000030',
     },
     favouriteButtonText: {
+        color: '#ffffff',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    shareButton: {
+        marginTop: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 999,
+        backgroundColor: '#00000030',
+    },
+    shareButtonText: {
         color: '#ffffff',
         fontSize: 14,
         fontWeight: '600',
