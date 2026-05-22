@@ -55,59 +55,70 @@ function FavouritesScreen( { theme, navigation }: NativeStackScreenProps<RootSta
     );
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.background, paddingTop: safeAreaInsets.top + 12, paddingBottom: safeAreaInsets.bottom }]}>
+        <View style={[styles.primaryContainer, { backgroundColor: theme.pokedexPanel, paddingTop: safeAreaInsets.top + 12, paddingBottom: safeAreaInsets.bottom }]}>
             <View style={styles.header}>
-                <Text style={[styles.title, { color: theme.text }]}>Favoritos</Text>
+                <Text style={styles.title}>Favoritos</Text>
                 <SideMenu
                     theme={theme}
                     buttonStyle={styles.menuButton}
                 />
             </View>
 
-            {error && <Text style={[styles.message, { color: theme.text }]}>{error}</Text>}
-            {loading && <Text style={[styles.message, { color: theme.text }]}>Cargando favoritos...</Text>}
-            {!loading && pokemons.length === 0 && !error && (
-                <Text style={[styles.message, { color: theme.text }]}>
-                    No tenes Pokemon favoritos todavia
-                </Text>
-            )}
-
-            <FlatList
-                showsVerticalScrollIndicator={false}
-                data={pokemons}
-                numColumns={2}
-                keyExtractor={pokemon => pokemon.id.toString()}
-                contentContainerStyle={{ paddingBottom: safeAreaInsets.bottom }}
-                columnWrapperStyle={styles.listRow}
-                renderItem={({ item }) => (
-                    <View style={styles.listItem}>
-                        <PokemonCard
-                            theme={theme}
-                            pokemonId={item.id}
-                            pokemonName={item.name}
-                            image={item.image}
-                            types={item.types}
-                            primaryType={item.primaryType}
-                            onPress={() =>
-                                navigation.navigate(Routes.PokemonDetail, {
-                                    pokemonId: item.id,
-                                    pokemonName: item.name,
-                                    image: item.image,
-                                    types: item.types,
-                                })
-                            }
-                        />
-                    </View>
+            <View style={[styles.container, { backgroundColor: theme.background }]}>
+                {error && <Text style={[styles.message, { color: theme.text }]}>{error}</Text>}
+                {loading && <Text style={[styles.message, { color: theme.text }]}>Cargando favoritos...</Text>}
+                {!loading && pokemons.length === 0 && !error && (
+                    <Text style={[styles.message, { color: theme.text }]}>
+                        No tenes Pokemon favoritos todavia
+                    </Text>
                 )}
-            />
+
+                <FlatList
+                    showsVerticalScrollIndicator={false}
+                    data={pokemons}
+                    numColumns={2}
+                    keyExtractor={pokemon => pokemon.id.toString()}
+                    contentContainerStyle={{ paddingBottom: safeAreaInsets.bottom }}
+                    columnWrapperStyle={styles.listRow}
+                    renderItem={({ item }) => (
+                        <View style={styles.listItem}>
+                            <PokemonCard
+                                theme={theme}
+                                pokemonId={item.id}
+                                pokemonName={item.name}
+                                image={item.image}
+                                types={item.types}
+                                primaryType={item.primaryType}
+                                onPress={() =>
+                                    navigation.navigate(Routes.PokemonDetail, {
+                                        pokemonId: item.id,
+                                        pokemonName: item.name,
+                                        image: item.image,
+                                        types: item.types,
+                                    })
+                                }
+                            />
+                        </View>
+                    )}
+                />
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+  primaryContainer: {
+    height: '100%',
+    width: '100%',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 2,
+    width: '95%',
+    borderRadius: 16,
   },
   header: {
     width: '100%',
@@ -120,6 +131,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
+    color: '#ffffff',
     textAlign: 'center',
   },
   menuButton: {
