@@ -10,6 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { darkColors, lightColors } from './src/theme/colors';
 import AppNavigator from './src/navigation/AppNavigator';
 import { initDatabase } from './src/database/database';
+import ConnectivityBanner from './src/components/ConnectivityBanner';
 import { useEffect } from 'react';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={theme.background}
       />
+      <ConnectivityBanner />
       <AppNavigator theme={theme} />
     </SafeAreaProvider>
   );
