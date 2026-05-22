@@ -4,13 +4,14 @@ import { FlatList, StyleSheet, Text, View, Image } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/routes';
 import { Routes } from '../navigation/routes';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PokemonListItem } from '../types/pokemon';
 import { getPokemonList } from '../api/pokemonApi';
 import PokemonCard from '../components/PokemonCard';
 import SideMenu from '../components/SideMenu';
 
 const logo = require('../assets/logo.png');
+const PAGE_SIZE = 50;
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'> & {
     theme: AppColors;
@@ -22,13 +23,59 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
     const [pokemons, setPokemons] = useState<PokemonListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
+    const [offset, setOffset] = useState(0);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const isFetchingRef = useRef(false);
+    const hasMoreRef = useRef(true);
+
+    const loadPokemons = useCallback(async (nextOffset: number) => {
+    if (isFetchingRef.current || !hasMoreRef.current) {
+        return;
+    }
+
+    isFetchingRef.current = true;
+
+    try {
+        if (nextOffset === 0) {
+            setLoading(true);
+        } else {
+            setLoadingMore(true);
+        }
+
+        const newPokemons = await getPokemonList(PAGE_SIZE, nextOffset);
+
+        if (newPokemons.length === 0) {
+            hasMoreRef.current = false;
+            setHasMore(false);
+            return;
+        }
+
+        setPokemons(previousPokemons => {
+            const existingIds = new Set(previousPokemons.map(pokemon => pokemon.id));
+            const uniqueNewPokemons = newPokemons.filter(
+                pokemon => !existingIds.has(pokemon.id),
+            );
+
+            return [
+                ...previousPokemons,
+                ...uniqueNewPokemons,
+            ];
+        });
+
+        setOffset(nextOffset + PAGE_SIZE);
+    } catch {
+        setError('No se pudieron cargar los Pokemon');
+    } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        isFetchingRef.current = false;
+    }
+}, []);
 
     useEffect(() => {
-    getPokemonList(50, 0)
-        .then(setPokemons)
-        .catch(() => setError('No se pudieron cargar los Pokémon'))
-        .finally(() => setLoading(false));
-    }, []);
+        loadPokemons(0);
+    }, [loadPokemons]);
 
     return (
         <View style={[styles.primaryContainer, { backgroundColor: theme.pokedexPanel, paddingTop: safeAreaInsets.top + 12, paddingBottom: safeAreaInsets.bottom }]}>
@@ -71,6 +118,19 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
                             />
                         </View>
                     )}
+                    onEndReached={() => {
+                        if (!loading && !loadingMore && hasMore) {
+                            loadPokemons(offset);
+                        }
+                    }}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={
+                        loadingMore ? (
+                        <Text style={[styles.loadingMoreText, { color: theme.text }]}>
+                            Cargando mas Pokemon...
+                        </Text>
+                        ) : null
+                    }
                 />
             </View>
             
@@ -120,6 +180,11 @@ const styles = StyleSheet.create({
     },
     listItem: {
         flex: 1,
+    },
+    loadingMoreText: {
+        textAlign: 'center',
+        paddingVertical: 16,
+        fontWeight: '600',
     },
 });
 
