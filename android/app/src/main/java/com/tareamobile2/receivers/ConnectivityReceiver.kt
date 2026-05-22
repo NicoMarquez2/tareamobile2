@@ -1,4 +1,4 @@
-package com.tareamobile2
+package com.tareamobile2.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context

@@ -1,4 +1,4 @@
-package com.tareamobile2
+package com.tareamobile2.providers
 
 import android.content.ContentProvider
 import android.content.ContentValues
@@ -39,29 +39,17 @@ class PokemonInfoProvider : ContentProvider() {
         cursor.addRow(arrayOf("app_name", "TareaMobile2"))
         cursor.addRow(arrayOf("framework", "React Native"))
         cursor.addRow(arrayOf("api", "PokeAPI"))
-        cursor.addRow(arrayOf("storage", "SQLite"))
+        cursor.addRow(arrayOf("storage", "Android native SQLite"))
         cursor.addRow(arrayOf("database", "pokemon.db"))
 
         return cursor
     }
 
     private fun queryFavorites(): Cursor? {
-        val db = context?.openOrCreateDatabase("pokemon.db", Context.MODE_PRIVATE, null)
-            ?: return null
+        val safeContext = context ?: return null
+        val helper = FavouritesDatabaseHelper(safeContext)
 
-        db.execSQL(
-            """
-            CREATE TABLE IF NOT EXISTS favourite_pokemon (
-                id INTEGER PRIMARY KEY,
-                created_at TEXT NOT NULL
-            )
-            """.trimIndent(),
-        )
-
-        return db.rawQuery(
-            "SELECT id, created_at FROM favourite_pokemon ORDER BY created_at DESC",
-            null,
-        )
+        return helper.getFavouriteCursor()
     }
 
     override fun getType(uri: Uri): String? {

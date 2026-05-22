@@ -1,4 +1,4 @@
-package com.tareamobile2
+package com.tareamobile2.services
 
 import android.content.Intent
 import com.facebook.react.bridge.ReactApplicationContext

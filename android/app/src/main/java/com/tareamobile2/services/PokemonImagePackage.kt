@@ -1,16 +1,16 @@
-package com.tareamobile2
+package com.tareamobile2.services
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
 
-class ConnectivityPackage : ReactPackage {
+class PokemonImagePackage : ReactPackage {
 
     override fun createNativeModules(
         reactContext: ReactApplicationContext
     ): List<NativeModule> {
-        return listOf(ConnectivityModule(reactContext))
+        return listOf(PokemonImageModule(reactContext))
     }
 
     override fun createViewManagers(

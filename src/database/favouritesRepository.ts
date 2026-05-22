@@ -1,49 +1,31 @@
-import { getDatabase } from "./database";
+import { NativeModules } from 'react-native';
+
+type FavouritesNativeModule = {
+  addFavourite: (pokemonId: number) => Promise<boolean>;
+  removeFavourite: (pokemonId: number) => Promise<boolean>;
+  isFavourite: (pokemonId: number) => Promise<boolean>;
+  getFavouriteIds: () => Promise<number[]>;
+};
+
+const favouritesModule = NativeModules.FavouritesModule as FavouritesNativeModule;
 
 export type Favourite = {
-    id: number;
-    created_at: string;
+  id: number;
+  created_at: string;
 };
 
 export async function addFavourite(pokemonId: number) {
-    const db = await getDatabase();
-
-    await db.executeSql(
-        'INSERT INTO favourite_pokemon (id, created_at) VALUES (?, ?)',
-        [pokemonId, new Date().toISOString()]
-    );
+  await favouritesModule.addFavourite(pokemonId);
 }
 
 export async function removeFavourite(pokemonId: number) {
-    const db = await getDatabase();
-
-    await db.executeSql(
-        'DELETE FROM favourite_pokemon WHERE id = ?',
-        [pokemonId]
-    );
+  await favouritesModule.removeFavourite(pokemonId);
 }
 
 export async function isFavourite(pokemonId: number): Promise<boolean> {
-    const db = await getDatabase();
-
-    const [result] = await db.executeSql(
-        'SELECT COUNT(*) as count FROM favourite_pokemon WHERE id = ?',
-        [pokemonId]
-    );
-
-    return result.rows.item(0).count > 0;
+  return favouritesModule.isFavourite(pokemonId);
 }
 
 export async function getFavouritesIds(): Promise<number[]> {
-    const db = await getDatabase();
-
-    const [result] = await db.executeSql(
-        'SELECT id FROM favourite_pokemon ORDER BY created_at DESC'
-    );
-
-    const ids: number[] = [];
-    for (let i = 0; i < result.rows.length; i++) {
-        ids.push(result.rows.item(i).id);
-    }
-    return ids;
+  return favouritesModule.getFavouriteIds();
 }

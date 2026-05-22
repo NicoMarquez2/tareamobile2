@@ -1,4 +1,4 @@
-package com.tareamobile2
+package com.tareamobile2.receivers
 
 import android.content.IntentFilter
 import android.net.ConnectivityManager

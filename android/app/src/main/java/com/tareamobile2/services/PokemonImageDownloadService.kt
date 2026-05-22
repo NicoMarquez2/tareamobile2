@@ -1,4 +1,4 @@
-package com.tareamobile2
+package com.tareamobile2.services
 
 import android.app.Notification
 import android.app.NotificationChannel

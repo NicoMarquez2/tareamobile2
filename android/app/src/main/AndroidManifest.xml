@@ -33,10 +33,10 @@
         </intent-filter>
       </activity>
 
-      <service android:name=".PokemonImageDownloadService" android:exported="false"/>
+      <service android:name=".services.PokemonImageDownloadService" android:exported="false"/>
 
       <provider
-        android:name=".PokemonInfoProvider"
+        android:name=".providers.PokemonInfoProvider"
         android:authorities="com.tareamobile2.provider"
         android:exported="true"
       />

@@ -9,20 +9,13 @@ import { StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { darkColors, lightColors } from './src/theme/colors';
 import AppNavigator from './src/navigation/AppNavigator';
-import { initDatabase } from './src/database/database';
 import ConnectivityBanner from './src/components/ConnectivityBanner';
-import { useEffect } from 'react';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   const theme = isDarkMode ? darkColors : lightColors;
 
-  useEffect(() => {
-    initDatabase().catch(() => {
-      console.warn('No se pudo inicializar la base de datos');
-    });
-  }, []);
 
   return (
     <SafeAreaProvider>

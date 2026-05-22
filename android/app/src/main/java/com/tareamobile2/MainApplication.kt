@@ -6,6 +6,9 @@ import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
+import com.tareamobile2.providers.FavouritesPackage
+import com.tareamobile2.receivers.ConnectivityPackage
+import com.tareamobile2.services.PokemonImagePackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -18,6 +21,7 @@ class MainApplication : Application(), ReactApplication {
           // add(MyReactNativePackage())
           add(ConnectivityPackage())
           add(PokemonImagePackage())
+          add(FavouritesPackage())
         },
     )
   }
