@@ -1,19 +1,7 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '../theme/colors';
-import {
-    Alert,
-    Image,
-    NativeModules,
-    PermissionsAndroid,
-    Platform,
-    Pressable,
-    ScrollView,
-    Share,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { Alert, Image, NativeModules, PermissionsAndroid, Platform, Pressable, ScrollView,
+        Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routes';
 import { useEffect, useState } from 'react';
