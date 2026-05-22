@@ -1,6 +1,19 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '../theme/colors';
-import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, Pressable, Share } from 'react-native';
+import {
+    Alert,
+    Image,
+    NativeModules,
+    PermissionsAndroid,
+    Platform,
+    Pressable,
+    ScrollView,
+    Share,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/routes';
 import { useEffect, useState } from 'react';
@@ -11,6 +24,10 @@ import SideMenu from '../components/SideMenu';
 import { addFavourite, isFavourite, removeFavourite } from '../database/favouritesRepository';
 
 const MAX_STAT_VALUE = 150;
+
+type PokemonImageModule = {
+    downloadPokemonImage: (pokemonName: string, imageUrl: string) => void;
+};
 
 type PokemonDetailProps = NativeStackScreenProps<RootStackParamList, 'PokemonDetail'> & {
     theme: AppColors;
@@ -62,6 +79,45 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
             `${visibleName} #${pokemonId}\n` +
             `${pokemonLink}`,
         });
+    }
+
+    async function requestNotificationPermission() {
+        if (Platform.OS !== 'android' || Number(Platform.Version) < 33) {
+            return true;
+        }
+
+        const result = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        );
+
+        return result === PermissionsAndroid.RESULTS.GRANTED;
+    }
+
+    async function handleDownloadImage() {
+        if (!visibleImage) {
+            Alert.alert('Imagen no disponible', 'Este Pokemon no tiene imagen para descargar.');
+            return;
+        }
+
+        const pokemonImageModule = NativeModules.PokemonImageModule as PokemonImageModule | undefined;
+
+        if (!pokemonImageModule) {
+            Alert.alert(
+                'Modulo no disponible',
+                'Recompila la app para activar el modulo nativo de descarga.',
+            );
+            return;
+        }
+
+        const canShowNotifications = await requestNotificationPermission();
+        pokemonImageModule.downloadPokemonImage(visibleName, visibleImage);
+
+        Alert.alert(
+            'Descarga iniciada',
+            canShowNotifications
+                ? 'La imagen del Pokemon se guardara en la galeria.'
+                : 'La imagen se guardara en la galeria, pero Android no mostrara notificacion.',
+        );
     }
 
     return (
@@ -173,6 +229,10 @@ function PokemonDetailScreen({ theme, route, navigation }: PokemonDetailProps) {
 
             <Pressable style={styles.shareButton} onPress={handleSharePokemon}>
                 <Text style={styles.shareButtonText}>Compartir</Text>
+            </Pressable>
+
+            <Pressable style={styles.downloadButton} onPress={handleDownloadImage}>
+                <Text style={styles.downloadButtonText}>Descargar imagen</Text>
             </Pressable>
         </View>
     );
@@ -339,6 +399,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#00000030',
     },
     shareButtonText: {
+        color: '#ffffff',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    downloadButton: {
+        marginTop: 12,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 999,
+        backgroundColor: '#00000030',
+    },
+    downloadButtonText: {
         color: '#ffffff',
         fontSize: 14,
         fontWeight: '600',
