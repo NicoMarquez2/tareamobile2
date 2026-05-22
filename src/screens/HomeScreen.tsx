@@ -9,8 +9,10 @@ import { PokemonListItem } from '../types/pokemon';
 import { getPokemonList } from '../api/pokemonApi';
 import PokemonCard from '../components/PokemonCard';
 import SideMenu from '../components/SideMenu';
+import PokeballLoader from '../components/PokeballLoader';
 
 const logo = require('../assets/logo.png');
+const pokeball = require('../assets/pokeball.png');
 const PAGE_SIZE = 50;
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'> & {
@@ -89,7 +91,14 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
             <View style={[styles.container, { backgroundColor: theme.background}]}>
 
                 {error && <Text style={{ color: theme.text }}>{error}</Text>}
-                {loading && <Text>Cargando Pokémon...</Text>}
+                {loading &&(
+                    <View style={styles.loadingContainer}>
+                        <PokeballLoader source={pokeball} size={48} />
+                        <Text style={[styles.loadingText, { color: theme.text }]}>
+                            Cargando Pokemon...
+                        </Text>
+                    </View>
+                )}
 
                 <FlatList
                     showsVerticalScrollIndicator={false}
@@ -125,11 +134,14 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
                     }}
                     onEndReachedThreshold={0.5}
                     ListFooterComponent={
-                        loadingMore ? (
-                        <Text style={[styles.loadingMoreText, { color: theme.text }]}>
+                    loadingMore ? (
+                        <View style={styles.loadingMoreContainer}>
+                        <PokeballLoader source={pokeball} size={32} />
+                        <Text style={[styles.loadingText, { color: theme.text }]}>
                             Cargando mas Pokemon...
                         </Text>
-                        ) : null
+                        </View>
+                    ) : null
                     }
                 />
             </View>
@@ -184,6 +196,31 @@ const styles = StyleSheet.create({
     loadingMoreText: {
         textAlign: 'center',
         paddingVertical: 16,
+        fontWeight: '600',
+    },
+    loadingContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 24,
+    },
+    loadingMoreContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+    },
+    loadingGif: {
+        width: 72,
+        height: 72,
+        resizeMode: 'contain',
+    },
+    loadingGifSmall: {
+        width: 44,
+        height: 44,
+        resizeMode: 'contain',
+    },
+    loadingText: {
+        marginTop: 8,
+        fontSize: 14,
         fontWeight: '600',
     },
 });
