@@ -19,12 +19,12 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={theme.background}
-      />
-      <ConnectivityBanner />
-      <AppNavigator theme={theme} />
+        <StatusBar
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+          backgroundColor={theme.background}
+        />
+        <ConnectivityBanner />
+        <AppNavigator theme={theme} />
     </SafeAreaProvider>
   );
 }
