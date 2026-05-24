@@ -1,25 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokédex</title>
-</head>
-<body>
-  <h1>Mira este Pokémon</h1>
-  <p>Abre este Pokémon en la app Pokédex.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokédex</title>
+  </head>
+  <body>
+    <h1>Mira este Pokémon</h1>
 
-  <button id="openApp">
-    Abrir en la app
-  </button>
+  <div class="card">
+    <img id="pokemonImage" />
+    <h1 id="pokemonName">Cargando...</h1>
+    <p id="pokemonNumber"></p>
+    <div id="pokemonTypes"></div>
+
+    <button id="openApp">Abrir en la app</button>
+  </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const pokemonId = params.get('pokemon') || '1';
 
+    async function loadPokemon() {
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonId}`);
+      const pokemon = await response.json();
+
+      document.title = `Pokédex - ${pokemon.name}`;
+      document.getElementById('pokemonName').textContent = pokemon.name;
+      document.getElementById('pokemonNumber').textContent = `#${pokemon.id}`;
+      document.getElementById('pokemonImage').src =
+      pokemon.sprites.other['official-artwork'].front_default;
+
+      document.getElementById('pokemonTypes').innerHTML = pokemon.types
+        .map(item => `<span class="type">${item.type.name}</span>`)
+        .join('');
+    }
+
     document.getElementById('openApp').addEventListener('click', () => {
       window.location.href = `tareamobile2://pokemon/${pokemonId}`;
     });
+
+    loadPokemon();
   </script>
 </body>
 </html>
