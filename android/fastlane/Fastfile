@@ -21,6 +21,11 @@ platform :android do
     gradle(task: "assembleRelease")
   end
 
+  desc "Ejecuta tests instrumentados Android"
+  lane :tests do
+    gradle(task: "connectedDebugAndroidTest")
+  end
+
   desc "Limpia Android"
   lane :clean do
     gradle(task: "clean")
