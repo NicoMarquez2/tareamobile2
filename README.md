@@ -371,3 +371,12 @@ Esto debe abrir el detalle de Pikachu.
 - La firma release se configura mediante GitHub Secrets.
 - El Content Provider esta pensado para evidencia academica y expone datos de solo lectura.
 - Para una version productiva, se podria restringir el provider con permisos o marcarlo como no exportado si no se necesita acceso externo.
+
+## Mockups
+
+Los mockups iniciales de la aplicacion se encuentran en:
+
+- `mockups/home.png`
+- `mockups/detail.png`
+- `mockups/favourites.png`
+- `mockups/about.png`
