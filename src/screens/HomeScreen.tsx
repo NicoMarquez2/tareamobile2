@@ -1,6 +1,6 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppColors } from '../theme/colors';
-import { FlatList, StyleSheet, Text, View, Image } from 'react-native';
+import { FlatList, StyleSheet, Text, View, Image, TextInput, ScrollView, TouchableOpacity  } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/routes';
 import { Routes } from '../navigation/routes';
@@ -10,6 +10,7 @@ import { getPokemonList } from '../api/pokemonApi';
 import PokemonCard from '../components/PokemonCard';
 import SideMenu from '../components/SideMenu';
 import PokeballLoader from '../components/PokeballLoader';
+import { pokemonTypes } from '../utils/pokemonTypes';
 
 const logo = require('../assets/logo.png');
 const pokeball = require('../assets/pokeball.png');
@@ -28,52 +29,59 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
     const [offset, setOffset] = useState(0);
     const [loadingMore, setLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [selectedType, setSelectedType] = useState<string | null>(null);
+
     const isFetchingRef = useRef(false);
     const hasMoreRef = useRef(true);
 
     const loadPokemons = useCallback(async (nextOffset: number) => {
-    if (isFetchingRef.current || !hasMoreRef.current) {
-        return;
-    }
-
-    isFetchingRef.current = true;
-
-    try {
-        if (nextOffset === 0) {
-            setLoading(true);
-        } else {
-            setLoadingMore(true);
-        }
-
-        const newPokemons = await getPokemonList(PAGE_SIZE, nextOffset);
-
-        if (newPokemons.length === 0) {
-            hasMoreRef.current = false;
-            setHasMore(false);
+        if (isFetchingRef.current || !hasMoreRef.current) {
             return;
         }
 
-        setPokemons(previousPokemons => {
-            const existingIds = new Set(previousPokemons.map(pokemon => pokemon.id));
-            const uniqueNewPokemons = newPokemons.filter(
-                pokemon => !existingIds.has(pokemon.id),
-            );
+        isFetchingRef.current = true;
 
-            return [
-                ...previousPokemons,
-                ...uniqueNewPokemons,
-            ];
-        });
+        try {
+            if (nextOffset === 0) {
+                setLoading(true);
+            } else {
+                setLoadingMore(true);
+            }
 
-        setOffset(nextOffset + PAGE_SIZE);
-    } catch {
-        setError('No se pudieron cargar los Pokemon');
-    } finally {
-        setLoading(false);
-        setLoadingMore(false);
-        isFetchingRef.current = false;
-    }
-}, []);
+            const newPokemons = await getPokemonList(PAGE_SIZE, nextOffset);
+
+            if (newPokemons.length === 0) {
+                hasMoreRef.current = false;
+                setHasMore(false);
+                return;
+            }
+
+            setPokemons(previousPokemons => {
+                const existingIds = new Set(previousPokemons.map(pokemon => pokemon.id));
+                const uniqueNewPokemons = newPokemons.filter(
+                    pokemon => !existingIds.has(pokemon.id),
+                );
+
+                return [
+                    ...previousPokemons,
+                    ...uniqueNewPokemons,
+                ];
+            });
+
+            setOffset(nextOffset + PAGE_SIZE);
+        } catch {
+            setError('No se pudieron cargar los Pokemon');
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+            isFetchingRef.current = false;
+        }
+    }, []);
+
+    const filteredPokemons = pokemons.filter(pokemon => {
+        const matchesType = selectedType ? pokemon.types.includes(selectedType) : true;
+        return matchesType;
+    });
 
     useEffect(() => {
         loadPokemons(0);
@@ -100,9 +108,46 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
                     </View>
                 )}
 
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.typesContainer}
+                    >
+                    <TouchableOpacity
+                        onPress={() => setSelectedType(null)}
+                        style={[
+                        styles.typeButton,
+                        {
+                            backgroundColor: selectedType === null ? theme.pokedexPanel : theme.card,
+                        },
+                        ]}
+                    >
+                        <Text style={{ color: selectedType === null ? '#fff' : theme.text }}>
+                            Todos
+                        </Text>
+                    </TouchableOpacity>
+
+                    {pokemonTypes.map(type => (
+                        <TouchableOpacity
+                            key={type}
+                            onPress={() => setSelectedType(type)}
+                            style={[
+                                styles.typeButton,
+                                {
+                                backgroundColor: selectedType === type ? theme.pokedexPanel : theme.card,
+                                },
+                            ]}
+                            >
+                            <Text style={{ color: selectedType === type ? '#fff' : theme.text }}>
+                                {type}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+
                 <FlatList
                     showsVerticalScrollIndicator={false}
-                    data={pokemons}
+                    data={filteredPokemons}
                     numColumns={2}
                     keyExtractor={pokemon => pokemon.id.toString()}
                     contentContainerStyle={{ paddingBottom: safeAreaInsets.bottom }}
@@ -134,14 +179,21 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
                     }}
                     onEndReachedThreshold={0.5}
                     ListFooterComponent={
-                    loadingMore ? (
-                        <View style={styles.loadingMoreContainer}>
-                        <PokeballLoader source={pokeball} size={32} />
-                        <Text style={[styles.loadingText, { color: theme.text }]}>
-                            Cargando mas Pokemon...
-                        </Text>
-                        </View>
-                    ) : null
+                        loadingMore ? (
+                            <View style={styles.loadingMoreContainer}>
+                            <PokeballLoader source={pokeball} size={32} />
+                            <Text style={[styles.loadingText, { color: theme.text }]}>
+                                Cargando mas Pokemon...
+                            </Text>
+                            </View>
+                        ) : null
+                    }
+                    ListEmptyComponent={
+                        !loading ? (
+                            <Text style={[styles.emptyText, { color: theme.text }]}>
+                            No se encontraron Pokemon
+                            </Text>
+                        ) : null
                     }
                 />
             </View>
@@ -151,6 +203,32 @@ function HomeScreen({ theme , navigation }: HomeScreenProps) {
 }
 
 const styles = StyleSheet.create({
+    searchInput: {
+        height: 44,
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        marginBottom: 12,
+        fontSize: 16,
+    },
+    typesContainer: {
+        marginBottom: 12,
+        maxHeight: 40,
+    },
+    typeButton: {
+        height: 32,
+        paddingHorizontal: 14,
+        borderRadius: 16,
+        marginRight: 8,
+        marginBottom: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        textAlign: 'center',
+        marginTop: 24,
+        fontSize: 16,
+        fontWeight: '600',
+    },
     primaryContainer: {
         height: '100%',
         width: '100%',
