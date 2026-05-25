@@ -1,97 +1,373 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Pokedex Interactivo
 
-# Getting Started
+Aplicacion movil desarrollada para el laboratorio de Desarrollo de Aplicaciones Moviles 2026.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+La app permite consultar Pokemon desde PokeAPI, buscar por nombre, ver detalle, guardar favoritos en SQLite, compartir Pokemon mediante intents y demostrar componentes nativos Android integrados con React Native.
 
-## Step 1: Start Metro
+## Tecnologias
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- React Native CLI
+- TypeScript
+- Android nativo con Kotlin
+- React Navigation
+- PokeAPI
+- SQLite nativo Android
+- Fastlane
+- GitHub Actions
+- AndroidX Test / JUnit
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Funcionalidades
 
-```sh
-# Using npm
-npm start
+- Listado de Pokemon desde PokeAPI.
+- Carga paginada al llegar al final de la lista.
+- Busqueda por nombre.
+- Pantalla de detalle con imagen, tipos, habilidades y estadisticas.
+- Guardado y eliminacion de favoritos.
+- Pantalla de favoritos.
+- Tema claro y oscuro.
+- Banner visual de conexion perdida/restaurada.
+- Compartir Pokemon con texto y deep link.
+- Pagina simple en GitHub Pages para abrir un Pokemon en la app.
+- Descarga de imagen del Pokemon a la galeria del dispositivo.
+- Reporte de tests instrumentados Android.
 
-# OR using Yarn
-yarn start
+## Pantallas
+
+- `Home`: listado principal y busqueda.
+- `PokemonDetail`: detalle del Pokemon seleccionado. Recibe `pokemonId` como parametro.
+- `Favourites`: listado de Pokemon favoritos guardados localmente.
+- `About`: informacion del proyecto.
+
+## Arquitectura del proyecto
+
+```txt
+src/
+  api/
+    pokemonApi.ts
+  assets/
+  components/
+    ConnectivityBanner.tsx
+    PokeballLoader.tsx
+    PokemonCard.tsx
+    SideMenu.tsx
+  database/
+    favouritesRepository.ts
+  navigation/
+    AppNavigator.tsx
+    routes.ts
+  screens/
+    HomeScreen.tsx
+    PokemonDetailScreen.tsx
+    FavouritesScreen.tsx
+    AboutScreen.tsx
+  theme/
+    colors.ts
+  types/
+    pokemon.ts
+  utils/
+
+android/app/src/main/java/com/tareamobile2/
+  MainActivity.kt
+  MainApplication.kt
+  providers/
+    FavouritesDatabaseHelper.kt
+    FavouritesModule.kt
+    FavouritesPackage.kt
+    PokemonInfoProvider.kt
+  receivers/
+    ConnectivityReceiver.kt
+    ConnectivityModule.kt
+    ConnectivityPackage.kt
+  services/
+    PokemonImageDownloadService.kt
+    PokemonImageModule.kt
+    PokemonImagePackage.kt
 ```
 
-## Step 2: Build and run your app
+## API publica
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+La aplicacion consume PokeAPI:
 
-### Android
+- Listado: `https://pokeapi.co/api/v2/pokemon`
+- Detalle: `https://pokeapi.co/api/v2/pokemon/{id}`
 
-```sh
-# Using npm
-npm run android
+La logica de consumo esta centralizada en:
 
-# OR using Yarn
-yarn android
+```txt
+src/api/pokemonApi.ts
 ```
 
-### iOS
+## Persistencia local
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+Los favoritos se guardan en SQLite nativo Android.
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+Base de datos:
 
-```sh
+```txt
+pokemon.db
+```
+
+Tabla:
+
+```sql
+CREATE TABLE IF NOT EXISTS favourite_pokemon (
+  id INTEGER PRIMARY KEY,
+  created_at TEXT NOT NULL
+);
+```
+
+La app React Native no consulta SQL directamente. La pantalla llama a:
+
+```txt
+src/database/favouritesRepository.ts
+```
+
+Ese repositorio se comunica con el modulo nativo:
+
+```txt
+android/app/src/main/java/com/tareamobile2/providers/FavouritesModule.kt
+```
+
+La logica SQLite esta en:
+
+```txt
+android/app/src/main/java/com/tareamobile2/providers/FavouritesDatabaseHelper.kt
+```
+
+## Componentes Android requeridos
+
+### Activity
+
+`MainActivity` es la actividad principal de Android y carga la aplicacion React Native.
+
+Archivo:
+
+```txt
+android/app/src/main/java/com/tareamobile2/MainActivity.kt
+```
+
+### Service
+
+`PokemonImageDownloadService` descarga la imagen de un Pokemon en segundo plano, la guarda en la galeria del dispositivo y muestra una notificacion de estado.
+
+Archivos:
+
+```txt
+android/app/src/main/java/com/tareamobile2/services/PokemonImageDownloadService.kt
+android/app/src/main/java/com/tareamobile2/services/PokemonImageModule.kt
+android/app/src/main/java/com/tareamobile2/services/PokemonImagePackage.kt
+```
+
+Justificacion: la descarga y guardado de imagen es una tarea del sistema Android que puede ejecutarse fuera de la UI de React Native y que se integra naturalmente con notificaciones y MediaStore.
+
+### Broadcast Receiver
+
+`ConnectivityReceiver` detecta cambios de conectividad y envia eventos hacia React Native. La app muestra un banner cuando se pierde o recupera la conexion.
+
+Archivos:
+
+```txt
+android/app/src/main/java/com/tareamobile2/receivers/ConnectivityReceiver.kt
+android/app/src/main/java/com/tareamobile2/receivers/ConnectivityModule.kt
+android/app/src/main/java/com/tareamobile2/receivers/ConnectivityPackage.kt
+src/components/ConnectivityBanner.tsx
+```
+
+### Content Provider
+
+`PokemonInfoProvider` expone informacion de solo lectura sobre la app y los favoritos guardados en SQLite.
+
+Archivo:
+
+```txt
+android/app/src/main/java/com/tareamobile2/providers/PokemonInfoProvider.kt
+```
+
+URIs disponibles:
+
+```txt
+content://com.tareamobile2.provider/info
+content://com.tareamobile2.provider/favorites
+```
+
+El provider es de solo lectura. Las operaciones `insert`, `update` y `delete` no estan permitidas.
+
+### Intents
+
+La app usa intents para:
+
+- Compartir informacion de un Pokemon desde `PokemonDetailScreen`.
+- Abrir la app mediante deep link:
+
+```txt
+tareamobile2://pokemon/{pokemonId}
+```
+
+El intent filter esta declarado en:
+
+```txt
+android/app/src/main/AndroidManifest.xml
+```
+
+## Deep links y pagina web
+
+La carpeta `docs/` contiene una pagina simple para GitHub Pages. Esa pagina muestra informacion basica del Pokemon y tiene un boton para abrir la app con el deep link:
+
+```txt
+docs/index.html
+```
+
+Ejemplo de deep link:
+
+```txt
+tareamobile2://pokemon/25
+```
+
+## Instalacion
+
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Instalar dependencias Ruby/Fastlane:
+
+```bash
+cd android
 bundle install
 ```
 
-Then, and every time you update your native dependencies, run:
+## Ejecutar la app
 
-```sh
-bundle exec pod install
+Iniciar Metro:
+
+```bash
+npm start
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+En otra terminal, instalar y abrir Android:
 
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+```bash
+npm run android
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Tambien se puede ejecutar directamente con Gradle:
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```bash
+android\gradlew.bat app:installDebug -p android
+```
 
-## Step 3: Modify your app
+## Tests
 
-Now that you have successfully run the app, let's make changes!
+El proyecto incluye tests instrumentados para la base de datos de favoritos.
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+Archivo:
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+```txt
+android/app/src/androidTest/java/com/tareamobile2/providers/FavouritesDatabaseHelperTest.kt
+```
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+Ejecutar tests con Gradle:
 
-## Congratulations! :tada:
+```bash
+android\gradlew.bat connectedDebugAndroidTest -p android
+```
 
-You've successfully run and modified your React Native App. :partying_face:
+Ejecutar tests con Fastlane:
 
-### Now what?
+```bash
+cd android
+bundle exec fastlane tests
+```
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+Reporte HTML:
 
-# Troubleshooting
+```txt
+android/app/build/reports/androidTests/connected/debug/index.html
+```
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## Fastlane
 
-# Learn More
+Lanes disponibles:
 
-To learn more about React Native, take a look at the following resources:
+```txt
+release: compila APK release
+tests: ejecuta tests instrumentados Android
+clean: limpia Android
+```
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Comandos:
+
+```bash
+cd android
+bundle exec fastlane release
+bundle exec fastlane tests
+bundle exec fastlane clean
+```
+
+## GitHub Actions
+
+El workflow de GitHub Actions genera un APK release cuando se pushea un tag con formato `v*`.
+
+Archivo:
+
+```txt
+.github/workflows/android-apk.yml
+```
+
+Secrets necesarios:
+
+```txt
+ANDROID_KEYSTORE_BASE64
+ANDROID_KEY_ALIAS
+ANDROID_KEYSTORE_PASSWORD
+ANDROID_KEY_PASSWORD
+```
+
+Crear un tag y subirlo:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+El APK queda disponible como artifact del workflow:
+
+```txt
+app-release.apk
+```
+
+## Verificar Content Provider
+
+Con la app instalada, se puede consultar desde ADB:
+
+```bash
+adb shell content query --uri content://com.tareamobile2.provider/info
+adb shell content query --uri content://com.tareamobile2.provider/favorites
+```
+
+## Verificar deep link
+
+Con la app instalada:
+
+```bash
+adb shell am start -a android.intent.action.VIEW -d "tareamobile2://pokemon/25"
+```
+
+Esto debe abrir el detalle de Pikachu.
+
+## Verificar descarga de imagen
+
+1. Abrir el detalle de un Pokemon.
+2. Tocar `Descargar imagen`.
+3. Aceptar permiso de notificaciones si Android lo solicita.
+4. Ver la notificacion de descarga.
+5. Revisar la galeria, carpeta `Pictures/Pokedex`.
+
+## Notas de seguridad
+
+- No se guardan secretos en el repositorio.
+- La firma release se configura mediante GitHub Secrets.
+- El Content Provider esta pensado para evidencia academica y expone datos de solo lectura.
+- Para una version productiva, se podria restringir el provider con permisos o marcarlo como no exportado si no se necesita acceso externo.
